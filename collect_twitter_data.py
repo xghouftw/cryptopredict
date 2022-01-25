@@ -1,12 +1,19 @@
+"""
+collect_twitter_data.py
+A script to collect cryptocurrency data from twitter
+
+Usage: collect_twitter_data.py <keyword> <start_date> <end_date>
+Example: ...
+"""
+
+
+
 import tweepy
 import pandas as pd
 import numpy as np
+import twint
 
-# TODO use the tweepy library to collect current twitter data from twitter
-# Twitter data is formatted as JSON objects, convert to DataFrame and save to CSV, 
-# Only save the columns: text, date, userID, followerCount, retweets, likes, comments
-# We will be using the Tweepy library because apparently nobody uses twython idk. 
-# Most online tutorials covered tweepy so we'll just use it too. not much of a difference anyway
+
 
 if __name__ == "__main__":
   # write out the script here after defining necessary functions above
