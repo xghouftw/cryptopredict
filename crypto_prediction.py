@@ -5,6 +5,26 @@ import numpy
 import pandas
 import torch
 
-# Choose what type(s) of models to use
-# Feature extraction
+# We will use a LSTM from torch library
+# It will take in the previous 30 days of crypto data (high, low, close, volume, cap)
+# It will also take in ...
 # Hyperparameter selection
+
+def main(data: pd.DataFrame):
+  # TODO create instance of machine learning model,
+  # run the training, perform testing and then save
+  
+  
+def train():
+  # train the model using the library's built in functionality
+  
+def test():
+  # test the model using the library's built in functionality
+  
+  
+if __name__ == "__main__":
+  
+  filename = "final_data.csv"
+  df = pd.read_csv(filename)
+  
+  main(df)
