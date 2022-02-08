@@ -8,61 +8,27 @@ Original file is located at
 """
 
 # need to pip install vaderSentiment
-
+import sys
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
+script, filepath, column_name = sys.argv
+
 def main(path, data, text_column_name):
-  # TODO
   # Take in a pd.DataFrame, and create a new column corresponding to the sentiment scores of each comment
-  # comments by bots will be removed
   # resulting data will be written to <path>.csv
 
   sid_obj = SentimentIntensityAnalyzer()
-  data['neg'], data['neu'], data['pos'], data['compound'] = data[text_column_name].apply(lambda x: VADER(x), axis=1)
+  scores=pd.DataFrame(data[text_column_name].apply(lambda x: VADER(str(x), sid_obj)))
+  data["scores"] = scores["body"]
   data.to_csv(path)
 
   return None
 
 def VADER(sentence, sid) -> dict:
-    """
-    sentlistneg.append(sentiment_dict['neg'])
-    sentlistneu.append(sentiment_dict['neu'])
-    sentlistpos.append(sentiment_dict['pos'])
-    sentlistcom.append(sentiment_dict['compound'])
-    """
-
     return tuple(sid.polarity_scores(sentence).values())
-"""
-for i in range(len(df)):
-  comment = df.loc[i,"text"]
-  date = df.loc[i,"date"]
-
-  try:
-    VADER(comment)
-    datelist.append(date)
-  except TypeError:
-    print(i)
-
-  i = i+1
-print(i)
-
-"""
-
-"""dfscores = pd.DataFrame()
-dfscores["date"] = datelist
-dfscores["Neg"] = sentlistneg
-dfscores["Neu"] = sentlistneu
-dfscores["Pos"] = sentlistpos
-dfscores["Com"] = sentlistcom
-
-dfscores.to_csv(path)
-
-print(dfscores.head())"""
 
 if __name__ == "__main__":
   # TODO
-  filepath = ""
   df = pd.read_csv(filepath)
-  column_name = ""
   main(filepath, df, column_name)
