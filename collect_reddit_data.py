@@ -37,16 +37,15 @@ import numpy as np
 import pickle
 import ipdb
 
-def query_reddit(subreddit = None, from_date=None, until_date=None, search_query = None, size = None):
+def query_reddit(subreddit = None, from_date=None, until_date=None, search_query = None, size = 100):
     # TODO
     # Using PushShift API, scrape reddit comments related to {Bitcoin, Ethereum, Dogecoin, Cryptocurrency}
     # return a DataFrame of comments, columns should be 'body', 'created_utc', 'total_awards_received', 'subreddit'
 
-    search_query_url = "https://api.pushshift.io/reddit/search/comment/?q=" + search_query +  "&subreddit=" + subreddit + "&before=" + str(until_date) + "d&after=" + str(from_date) + "d&size=" + str(size)
-    data = requests.get(search_query_url)
-    return data
+    search_query_url = "https://api.pushshift.io/reddit/search/comment/?q=" + search_query + "&before=" + str(until_date) + "d&after=" + str(from_date) + "d&size=" + str(size)
+    return requests.get(search_query_url)
 
-def clean_data(reddit_data: list, columns = None)-> list:
+def clean_data(reddit_data: list, columns: list = None)-> list:
   """
   """
   # TODO
@@ -61,7 +60,7 @@ def clean_data(reddit_data: list, columns = None)-> list:
   return df
 
 
-def main(filepath, queries, column_names):
+def main(filepath: str, queries: list, column_names: list)-> None:
     """
 
     :param filepath:
@@ -79,10 +78,10 @@ def main(filepath, queries, column_names):
             cont = True
             while cont:
                 try:
-                    comments = query_reddit(subreddit=query, from_date=date, until_date=date - 1, search_query=query, size=1000)
+                    comments = query_reddit(from_date=date, until_date=date - 1, search_query=query)
                     comments = comments.json()
                     cont = False
-                except:
+                except JSONDecodeError:
                     pass
             data_to_append = clean_data(comments["data"], columns=column_names)
             dataf = pd.concat([dataf, data_to_append])
@@ -95,15 +94,10 @@ if __name__ == "__main__":
 
     # for every day since two years ago, collect 1000 comments returned
     # from the query and add it to the csv file for that particular query
-
-    """
+    # df = pd.read_csv("~/PycharmProjects/pythonProject/reddit_data_sets/dogecoin.csv")
+    
     filepath = "/home/alden/PycharmProjects/pythonProject/reddit_data_sets/"
-    queries = ["bitcoin", "dogecoin", "ethereum", "cryptocurrency"]
+    queries = ["bitcoin", "dogecoin", "ethereum", "cryptocurrency", "economics", "finance", "politics"]
     column_names = ['body', 'created_utc', 'total_awards_received', 'subreddit']
 
     main(filepath, queries, column_names)
-
-    """
-
-    df = pd.read_csv("~/PycharmProjects/pythonProject/reddit_data_sets/dogecoin.csv")
-
