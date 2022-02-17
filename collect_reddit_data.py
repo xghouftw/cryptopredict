@@ -59,7 +59,6 @@ def clean_data(reddit_data: list, columns: list = None)-> list:
   df = pd.DataFrame(data=pre_df[1:], columns=pre_df[0])
   return df
 
-
 def main(filepath: str, queries: list, column_names: list)-> None:
     """
 
@@ -70,7 +69,10 @@ def main(filepath: str, queries: list, column_names: list)-> None:
     """
 
     # Import all data from reddit first
-    # Store it in a list of dictionaries
+    # Store it in a list of dictionaries    
+    df = pd.DataFrame()
+    
+    # for every query in the list, we search reddit comments
     for query in queries:
 
         dataf = pd.DataFrame(columns=column_names)
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     # df = pd.read_csv("~/PycharmProjects/pythonProject/reddit_data_sets/dogecoin.csv")
     
     filepath = "/home/alden/PycharmProjects/pythonProject/reddit_data_sets/"
-    queries = ["bitcoin", "dogecoin", "ethereum", "cryptocurrency", "economics", "finance", "politics"]
-    column_names = ['body', 'created_utc', 'total_awards_received', 'subreddit']
+    queries = ["bitcoin", "dogecoin", "ethereum", "cryptocurrency", "economics", "finance", "politics", "election"]
+    # column_names = ['body', 'created_utc', 'total_awards_received', 'subreddit']
 
     main(filepath, queries, column_names)
