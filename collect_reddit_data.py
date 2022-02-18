@@ -74,16 +74,17 @@ def main(filepath: str, query: list, date_range: int)-> None:
     # relevant_columns = [body, created_utc, score, date]
     # create a dictionary mapping body:texts, created_utc:utcs, score:scores
     # convert dict to dataframe
+    
 # contatenate new df with old df to append data
     raw_reddit_query_data = [query_reddit(from_date=x+1, until_date=x, search_query=query)['data'] for x in range(date_range, 1, -1)] # list of daily_comments dict
-    with open(query+".json", "w") as outfile:
-        json.dump(raw_reddit_query_data)
-    data_dict = {text:[], created:[], score:[]}
+    json.dump(raw_reddit_query_data, query+".json", indent=3)
+    data_dict = {text:[], created:[], score:[], total_num_awards:[]}
     for daily_comments in raw_reddit_query_data:
         for comment in daily_comments:
             data_dict[text].append(comment['body'])
             data_dict[created].append(comment['created_utc'])
             data_dict[score].append(comment['score'])
+            data_dict[total_num_awards].append(comment['total_num_awards'])
     df = pd.DataFrame(data_dict)
     df.to_csv(filepath, index=False)
 
