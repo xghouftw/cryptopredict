@@ -58,7 +58,7 @@ def clean_data(reddit_data: list, columns: list = None)-> list:
   df = pd.DataFrame(data=pre_df[1:], columns=pre_df[0])
   return df
 
-def main(filepath: str, query: list, date_range: int)-> None:
+def main(filepath: str, query: str, date_range: int)-> None:
     """
 
     :param filepath:
@@ -69,62 +69,32 @@ def main(filepath: str, query: list, date_range: int)-> None:
 
     # Import all data from reddit first
     # Store it in a list of dictionaries
-
-
-    # relevant_columns = [body, created_utc, score, date]
-    # create a dictionary mapping body:texts, created_utc:utcs, score:scores
-    # convert dict to dataframe
-    
-# contatenate new df with old df to append data
-    raw_reddit_query_data = [query_reddit(from_date=x+1, until_date=x, search_query=query)['data'] for x in range(date_range, 1, -1)] # list of daily_comments dict
+    raw_reddit_query_data = [query_reddit(from_date=x+1, until_date=x, search_query=query)['data'] for x in range(date_range, 0, -1)] # list of daily_comments dict
     with open(query+".json", "w") as out_file:
-        json.dump(raw_reddit_query_data, query+".json", out_file, indent=3)
-    data_dict = {text:[], created:[], score:[], total_num_awards:[]}
+        json.dump(raw_reddit_query_data, out_file, indent=4)
+    # convert dictionaries to dataframe
+    data_dict = {'text':[], 'date':[], 'score':[], 'awards':[]}
     for daily_comments in raw_reddit_query_data:
         for comment in daily_comments:
-            data_dict[text].append(comment['body'])
-            data_dict[created].append(comment['created_utc'])
-            data_dict[score].append(comment['score'])
-            data_dict[total_num_awards].append(comment['total_num_awards'])
+            data_dict['text'].append(comment['body']) if len(comment['body'])>0 else data_dict['text'].append('null')
+            data_dict['date'].append(comment['created_utc']) if len(str(comment['created_utc']))>0 else data_dict['date'].append('null')
+            data_dict['score'].append(comment['score']) if len(str(comment['score']))>0 else data_dict['score'].append('null')
+            data_dict['awards'].append(comment['total_awards_received']) if len(str(comment['total_awards_received']))>0 else data_dict['awards'].append('null')
     df = pd.DataFrame(data_dict)
     df.to_csv(filepath, index=False)
-
-
-    # for every query in the list, we search reddit comments
-
-
-
-    """for query in queries:
-
-        dataf = pd.DataFrame(columns=column_names)
-        for date in range(730, -1, -1):
-            cont = True
-            while cont:
-                try:
-                    comments = query_reddit(from_date=date, until_date=date - 1, search_query=query)
-                    comments = comments.json()
-                    cont = False
-                except JSONDecodeError:
-                    pass
-            data_to_append = clean_data(comments["data"], columns=column_names)
-            dataf = pd.concat([dataf, data_to_append])
-            print(data_to_append.head())
-        dataf.to_csv(filepath + query + ".csv", index=False)"""
 
 if __name__ == "__main__":
 
     # filepath = "/home/alden/PycharmProjects/pythonProject/reddit_data_sets/"
     # queries = ["bitcoin", "dogecoin", "ethereum", "cryptocurrency", "economics", "finance", "politics", "election"]
     # column_names = ['body', 'created_utc', 'total_awards_received', 'subreddit']
-    # IMPORTANT!! CURRENT DATE: 2/17/2022
+    # IMPORTANT!! CURRENT DATE: 2/19/2022
 
     script, filepath, queries, date_range = sys.argv
     queries = queries.split()
     date_range = int(date_range)
 
-
-    # collect all relevant data in one dataframe and store it as a csv
-
     for query in queries:
-        main(filepath+"-"+query+".csv", query, date_range)
-
+        main(filepath+"reddit-"+query+".csv", query, date_range)
+        
+     
