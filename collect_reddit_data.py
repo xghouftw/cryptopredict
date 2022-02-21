@@ -28,21 +28,6 @@ import requests
 import pandas as pd
 import json
 
-def query_reddit(subreddit = None, from_date=None, until_date=None, search_query = None, size = 100):
-
-    search_query_url = "https://api.pushshift.io/reddit/search/comment/?q=" + search_query + "&before=" + str(until_date) + "d&after=" + str(from_date) + "d&size=" + str(size)
-    JSONDecodeError=True
-    print(from_date)
-    count = 0
-    while JSONDecodeError == True and count < 100:
-        count += 1
-        try:
-            comments = requests.get(search_query_url).json()
-            JSONDecodeError=False
-            return comments
-        except:
-            pass
-
 def clean_data(reddit_data: list, columns: list = None)-> list:
   # TODO
   # append comment lists to a new list, keeping elements that correspond to the passed in parameters
@@ -54,6 +39,23 @@ def clean_data(reddit_data: list, columns: list = None)-> list:
       pre_df.append(appending)
   df = pd.DataFrame(data=pre_df[1:], columns=pre_df[0])
   return df
+
+def query_reddit(search_query=None, subreddit=None, from_date=None, until_date=None, size=100):
+
+    search_query_url = "https://api.pushshift.io/reddit/search/comment/?q=" + search_query + "&subreddit=" + subreddit + "&before=" + str(until_date) + "d&after=" + str(from_date) + "d&size=" + str(size)
+    JSONDecodeError=True
+    print(from_date)
+    count = 0
+    while JSONDecodeError == True and count < 100:
+        print("\t", count)
+        count += 1
+        try:
+            comments = requests.get(search_query_url).json()
+            JSONDecodeError=False
+            return comments
+        except:
+            pass
+    return {"data":[{"body":"null", "created_utc":"null", "score":"null", "total_awards_received":"null"}]}
 
 def main(filepath: str, query: str, date_range: int)-> None:
     """
@@ -67,10 +69,10 @@ def main(filepath: str, query: str, date_range: int)-> None:
     # Import all data from reddit first
     print("Collecting reddit data for: " + query + "\nStretching " + str(date_range) + " days back in time")
 
-    raw_reddit_query_data = [query_reddit(from_date=x+1, until_date=x, search_query=query)['data'] for x in range(date_range, 0, -1)] # list of daily_comments dict
+    raw_reddit_query_data = [query_reddit(search_query=query, subreddit=query, from_date=x+1, until_date=x)['data'] for x in range(date_range, 0, -1)] # list of daily_comments dict
 
     print("Done collecting " + query + " data.\nWriting to JSON file...")
-    with open(query+".json", "w") as out_file:
+    with open(filepath+query+".json", "w") as out_file:
         json.dump(raw_reddit_query_data, out_file, indent=4)
 
     print("Creating dictionary mappings...")
@@ -86,11 +88,11 @@ def main(filepath: str, query: str, date_range: int)-> None:
     df = pd.DataFrame(data_dict)
 
     print("Writing to csv...")
-    df.to_csv(filepath, index=False)
+    df.to_csv(filepath+"reddit-"+query+".csv", index=False)
     print("Done!!\n\n\n")
 
 if __name__ == "__main__":
-    # IMPORTANT!! CURRENT DATE: 2/20/2022
+    # IMPORTANT!! CURRENT DATE: 2/21/2022
 
     script, filepath, queries, date_range = sys.argv
     queries = queries.split()
@@ -98,7 +100,7 @@ if __name__ == "__main__":
 
 
     # collect all relevant data in one dataframe and store it as a csv
-
+    # queries = [bitcoin, ethereum, dogecoin, cryptocurrency, economy, politics, finance, pandemic]
     for query in queries:
-        main(filepath+"reddit-"+query+".csv", query, date_range)
+        main(filepath, query, date_range)
 
