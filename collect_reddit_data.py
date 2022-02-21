@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 reddit_collector.py
-reddit collector script
+reddit data collection script
 
 Usage: reddit_collector.py
 
@@ -26,19 +26,16 @@ which is then written to a .csv file.
 import sys
 import requests
 import pandas as pd
-import numpy as np
-import pickle
-import ipdb
 import json
 
 def query_reddit(subreddit = None, from_date=None, until_date=None, search_query = None, size = 100):
-    # TODO
-    # Using PushShift API, scrape reddit comments related to {Bitcoin, Ethereum, Dogecoin, Cryptocurrency}
-    # return a DataFrame of comments, columns should be 'body', 'created_utc', 'total_awards_received', 'subreddit'
 
     search_query_url = "https://api.pushshift.io/reddit/search/comment/?q=" + search_query + "&before=" + str(until_date) + "d&after=" + str(from_date) + "d&size=" + str(size)
     JSONDecodeError=True
-    while JSONDecodeError == True:
+    print(from_date)
+    count = 0
+    while JSONDecodeError == True and count < 100:
+        count += 1
         try:
             comments = requests.get(search_query_url).json()
             JSONDecodeError=False
@@ -68,33 +65,40 @@ def main(filepath: str, query: str, date_range: int)-> None:
     """
 
     # Import all data from reddit first
-    # Store it in a list of dictionaries
+    print("Collecting reddit data for: " + query + "\nStretching " + str(date_range) + " days back in time")
+
     raw_reddit_query_data = [query_reddit(from_date=x+1, until_date=x, search_query=query)['data'] for x in range(date_range, 0, -1)] # list of daily_comments dict
+
+    print("Done collecting " + query + " data.\nWriting to JSON file...")
     with open(query+".json", "w") as out_file:
         json.dump(raw_reddit_query_data, out_file, indent=4)
-    # convert dictionaries to dataframe
-    data_dict = {'text':[], 'date':[], 'score':[], 'awards':[]}
-    for daily_comments in raw_reddit_query_data:
+
+    print("Creating dictionary mappings...")
+    data_dict = {'text':[], 'date':[], 'unix_time':[], 'score':[], 'num_awards':[]}
+    for i, daily_comments in enumerate(raw_reddit_query_data):
+        temp_date = date_range-i
         for comment in daily_comments:
             data_dict['text'].append(comment['body']) if len(comment['body'])>0 else data_dict['text'].append('null')
-            data_dict['date'].append(comment['created_utc']) if len(str(comment['created_utc']))>0 else data_dict['date'].append('null')
+            data_dict['date'].append(temp_date)
+            data_dict['unix_time'].append(comment['created_utc']) if len(str(comment['created_utc']))>0 else data_dict['unix_time'].append('null')
             data_dict['score'].append(comment['score']) if len(str(comment['score']))>0 else data_dict['score'].append('null')
-            data_dict['awards'].append(comment['total_awards_received']) if len(str(comment['total_awards_received']))>0 else data_dict['awards'].append('null')
+            data_dict['num_awards'].append(comment['total_awards_received']) if len(str(comment['total_awards_received']))>0 else data_dict['num_awards'].append('null')
     df = pd.DataFrame(data_dict)
+
+    print("Writing to csv...")
     df.to_csv(filepath, index=False)
+    print("Done!!\n\n\n")
 
 if __name__ == "__main__":
-
-    # filepath = "/home/alden/PycharmProjects/pythonProject/reddit_data_sets/"
-    # queries = ["bitcoin", "dogecoin", "ethereum", "cryptocurrency", "economics", "finance", "politics", "election"]
-    # column_names = ['body', 'created_utc', 'total_awards_received', 'subreddit']
-    # IMPORTANT!! CURRENT DATE: 2/19/2022
+    # IMPORTANT!! CURRENT DATE: 2/20/2022
 
     script, filepath, queries, date_range = sys.argv
     queries = queries.split()
     date_range = int(date_range)
 
+
+    # collect all relevant data in one dataframe and store it as a csv
+
     for query in queries:
         main(filepath+"reddit-"+query+".csv", query, date_range)
-        
-     
+
