@@ -1,4 +1,4 @@
-# Sentiment Based Predictions of Cryptocurrencies#
+# Sentiment Based Predictions of Cryptocurrencies
 
 ### Welcome to the source code for our project on sentiment based predictions of cryptocurrencies! We all hope you enjoy it as much as we enjoyed working on it!
 
