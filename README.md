@@ -1,4 +1,12 @@
-# Sentiment Based Predictions of Cryptocurrencies
+# Crypto Predict
+
+This is a sample of a larger project on which I worked with on a team. In this repository I have only included the files I wrote.
+
+ConvertDates.ipynb compiles the stock price data into a daily average. However, there remain gaps in the data, notably weekends or other extraneous missing dates. This is corrected in StockPriceGaps.ipynb, where dates are now continuous in columns. VADER.ipynb runs each sentence through sentiment analysis and stores its polarity score. Finally, Merging_Dates.ipynb combines each day's stock prices with their social media sentiment scores. The dataset has now been processed and is ready for training on the LSTM model.
+
+Below is the original description of the entire project. My portion focuses on the 3rd and 4th step, sentiment analysis and merging prices and sentiment scores by date.
+
+## Sentiment Based Predictions of Cryptocurrencies
 
 ### Welcome to the source code for our project on sentiment based predictions of cryptocurrencies! We all hope you enjoy it as much as we enjoyed working on it!
 
